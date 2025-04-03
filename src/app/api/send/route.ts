@@ -41,6 +41,13 @@ export async function POST(request: Request) {
 
     const { body, error } = await parseRequest(request, schema, { skipAuth: true });
 
+    const ip =
+      request.headers.get('x-forwarded-for')?.split(',')[0] ??
+      request.headers.get('x-real-ip') ??
+      request.socket?.remoteAddress ??
+      null;
+
+
     if (error) {
       return error();
     }
@@ -119,6 +126,7 @@ export async function POST(request: Request) {
             subdivision1,
             subdivision2,
             city,
+            ipAddress: ip,
           });
         } catch (e: any) {
           if (!e.message.toLowerCase().includes('unique constraint')) {
